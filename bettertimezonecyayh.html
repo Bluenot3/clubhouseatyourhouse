@@ -1,0 +1,220 @@
+<html><head><base href="https://louisiana-time.com/" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Louisiana Time Zone Converter</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #000;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 2rem;
+    text-align: center;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.6s;
+    max-width: 90%;
+    width: 320px;
+  }
+  h1 {
+    color: #fff;
+    margin-bottom: 1rem;
+    transform: translateZ(50px);
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  }
+  #clock {
+    font-size: 2.5rem;
+    color: #4fc3f7;
+    margin: 1rem 0;
+    transform: translateZ(30px);
+    text-shadow: 0 0 15px rgba(79,195,247,0.7);
+  }
+  #timezone-select {
+    padding: 0.7rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    margin-bottom: 1rem;
+    transform: translateZ(20px);
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  #timezone-select:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(79,195,247,0.7);
+  }
+  #louisiana-time {
+    font-size: 1.8rem;
+    color: #ff6e40;
+    margin-top: 1rem;
+    transform: translateZ(40px);
+    text-shadow: 0 0 15px rgba(255,110,64,0.7);
+  }
+  #glowing-text {
+    font-size: 2.2rem;
+    color: #76ff03;
+    text-shadow: 0 0 10px #76ff03, 0 0 20px #76ff03, 0 0 30px #76ff03;
+    animation: glow 1.5s ease-in-out infinite alternate;
+    margin-top: 1.5rem;
+  }
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 5px #76ff03, 0 0 10px #76ff03, 0 0 15px #76ff03;
+    }
+    to {
+      text-shadow: 0 0 10px #76ff03, 0 0 20px #76ff03, 0 0 30px #76ff03, 0 0 40px #76ff03;
+    }
+  }
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="converter">
+  <h1>Louisiana Time Converter</h1>
+  <div id="clock"></div>
+  <select id="timezone-select">
+    <option value="-5">Eastern Time (ET)</option>
+    <option value="-6">Central Time (CT)</option>
+    <option value="-7">Mountain Time (MT)</option>
+    <option value="-8">Pacific Time (PT)</option>
+    <option value="-9">Alaska Time (AKT)</option>
+    <option value="-10">Hawaii-Aleutian Time (HAT)</option>
+  </select>
+  <div id="louisiana-time"></div>
+  <div id="glowing-text">CH@YH</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+<script>
+  const clock = document.getElementById('clock');
+  const timezoneSelect = document.getElementById('timezone-select');
+  const louisianaTime = document.getElementById('louisiana-time');
+  const converter = document.getElementById('converter');
+
+  function updateTime() {
+    const now = new Date();
+    const selectedOffset = parseInt(timezoneSelect.value);
+    const louisianaOffset = -6; // Central Time
+
+    // Set time for selected timezone
+    now.setHours(now.getHours() + selectedOffset + now.getTimezoneOffset() / 60);
+    clock.textContent = now.toLocaleTimeString('en-US', { hour12: true });
+
+    // Set time for Louisiana
+    const laTime = new Date(now.getTime() + (louisianaOffset - selectedOffset) * 3600000);
+    louisianaTime.textContent = `Louisiana Time: ${laTime.toLocaleTimeString('en-US', { hour12: true })}`;
+  }
+
+  timezoneSelect.addEventListener('change', updateTime);
+  setInterval(updateTime, 1000);
+
+  // 3D effect with GSAP
+  converter.addEventListener('mousemove', (e) => {
+    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+    gsap.to(converter, {
+      rotationY: xAxis,
+      rotationX: yAxis,
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  });
+
+  converter.addEventListener('mouseleave', () => {
+    gsap.to(converter, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.6,
+      ease: 'elastic.out(1, 0.3)'
+    });
+  });
+
+  // Three.js background
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const geometry = new THREE.TorusKnotGeometry(10, 3, 200, 32);
+  const material = new THREE.MeshPhongMaterial({ 
+    color: 0x4fc3f7,
+    wireframe: true,
+    shininess: 100,
+    emissive: 0x4fc3f7,
+    emissiveIntensity: 0.5
+  });
+  const torusKnot = new THREE.Mesh(geometry, material);
+  scene.add(torusKnot);
+
+  const light = new THREE.PointLight(0xffffff, 1, 100);
+  light.position.set(0, 0, 10);
+  scene.add(light);
+
+  camera.position.z = 30;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    torusKnot.rotation.x += 0.01;
+    torusKnot.rotation.y += 0.01;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Responsive design
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Particle system
+  const particlesGeometry = new THREE.BufferGeometry();
+  const particlesCount = 5000;
+  const posArray = new Float32Array(particlesCount * 3);
+
+  for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 100;
+  }
+
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.01,
+    color: 0x4fc3f7,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending
+  });
+
+  const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particlesMesh);
+
+  function animateParticles() {
+    particlesMesh.rotation.y += 0.001;
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+</script>
+</body></html>
