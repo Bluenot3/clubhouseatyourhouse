@@ -1,0 +1,177 @@
+<html><head><base href="https://yourdomain.com/timeconverter/">
+<title>Futuristic Time Converter - Louisiana</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #000;
+    color: #0ff;
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.clock {
+    font-size: clamp(3rem, 10vw, 6rem);
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+}
+
+.converter {
+    background: rgba(0, 255, 255, 0.1);
+    padding: clamp(1rem, 5vw, 3rem);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    width: clamp(300px, 80%, 600px);
+}
+
+select, button {
+    font-family: 'Orbitron', sans-serif;
+    background: #000;
+    color: #0ff;
+    border: 1px solid #0ff;
+    padding: 0.8rem;
+    margin: 0.5rem;
+    border-radius: 5px;
+    font-size: clamp(0.8rem, 3vw, 1.2rem);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+select:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 10px #0ff;
+}
+
+button {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #0ff;
+    color: #000;
+}
+
+#result {
+    margin-top: 1rem;
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    text-align: center;
+}
+
+.background-text {
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .converter {
+        padding: 1.5rem;
+    }
+    
+    select, button {
+        padding: 0.6rem;
+        margin: 0.3rem;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <svg class="background" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0ff" />
+                <stop offset="50%" stop-color="#00f" />
+                <stop offset="100%" stop-color="#0ff" />
+                <animate attributeName="x1" from="0%" to="100%" dur="10s" repeatCount="indefinite" />
+                <animate attributeName="x2" from="100%" to="200%" dur="10s" repeatCount="indefinite" />
+            </linearGradient>
+        </defs>
+        <g class="background-text">
+            <text x="50%" y="25%" dominant-baseline="middle" text-anchor="middle" font-family="Orbitron" font-size="15vw" fill="url(#gradient)" filter="url(#glow)">
+                CH@YH
+                <animateTransform attributeName="transform" type="rotate" from="0 50 25" to="360 50 25" dur="30s" repeatCount="indefinite" />
+            </text>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Orbitron" font-size="20vw" fill="url(#gradient)" filter="url(#glow)">
+                CH@YH
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="-360 50 50" dur="40s" repeatCount="indefinite" />
+            </text>
+            <text x="50%" y="75%" dominant-baseline="middle" text-anchor="middle" font-family="Orbitron" font-size="10vw" fill="url(#gradient)" filter="url(#glow)">
+                CH@YH
+                <animateTransform attributeName="transform" type="rotate" from="0 50 75" to="360 50 75" dur="20s" repeatCount="indefinite" />
+            </text>
+        </g>
+    </svg>
+
+    <div class="clock" id="louisiana-time"></div>
+    <div class="converter">
+        <select id="timezone-select">
+            <option value="America/New_York">Eastern Time Zone</option>
+            <option value="America/Chicago">Central Time Zone</option>
+            <option value="America/Denver">Mountain Time Zone</option>
+            <option value="America/Los_Angeles">Pacific Time Zone</option>
+            <option value="America/Anchorage">Alaska Time Zone</option>
+            <option value="Pacific/Honolulu">Hawaii-Aleutian Time Zone</option>
+        </select>
+        <button onclick="convertTime()">Convert</button>
+        <div id="result"></div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
+<script>
+function updateLouisianaTime() {
+    const now = moment().tz("America/Chicago");
+    document.getElementById('louisiana-time').textContent = now.format('HH:mm:ss');
+}
+
+function convertTime() {
+    const louisianaNow = moment().tz("America/Chicago");
+    const selectedTimezone = document.getElementById('timezone-select').value;
+    const convertedTime = louisianaNow.clone().tz(selectedTimezone);
+    
+    const result = document.getElementById('result');
+    result.innerHTML = `
+        Louisiana Time: ${louisianaNow.format('HH:mm:ss')}<br>
+        ${moment.tz.zone(selectedTimezone).name} Time: ${convertedTime.format('HH:mm:ss')}<br>
+        Time Difference: ${convertedTime.utcOffset() - louisianaNow.utcOffset()} minutes
+    `;
+}
+
+setInterval(updateLouisianaTime, 1000);
+updateLouisianaTime();
+</script>
+</body>
+</html>
